@@ -11,7 +11,7 @@ namespace DijkstrasAlgorithmWPF.Algorithms
 {
     public class AStar
     {
-        public static async Task<List<Node>> Search(Grid grid)
+        public static async Task<List<Node>> Search(Grid grid, Action<Node> onNodeProcessed)
         {
             List<Node> unvisitedNodes = new List<Node>();
 
@@ -49,10 +49,11 @@ namespace DijkstrasAlgorithmWPF.Algorithms
                         neighbor.Parent = currentNode;
                     }
                 }
+                currentNode.State = NodeState.Visited;
+                onNodeProcessed(currentNode); // Update the UI for the current node
+                await Task.Delay(5); // Add a delay to visualize the algorithm steps
 
                 unvisitedNodes.Remove(currentNode);
-
-                await Task.Delay(5);
             }
 
             return GridHelper.BuildPath(grid.EndNode);

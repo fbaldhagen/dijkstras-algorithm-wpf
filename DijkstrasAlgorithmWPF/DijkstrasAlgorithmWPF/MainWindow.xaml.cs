@@ -20,7 +20,7 @@ namespace DijkstrasAlgorithmWPF
     {
         private DijkstrasAlgorithmWPF.Model.Grid grid;
         private Canvas canvas;
-        private int cellSize = 20; // Adjust the cell size as needed
+        private readonly int cellSize = 20; // Adjust the cell size as needed
 
         public MainWindow()
         {
@@ -33,21 +33,7 @@ namespace DijkstrasAlgorithmWPF
             // Initialize the Grid and Canvas
             grid = GridHelper.InitializeGrid(20, 20, (0, 0), (10, 9)); // Adjust the grid size, start, and end positions as needed
 
-            GridHelper.AddObstacle(grid, 9, 10);
-            GridHelper.AddObstacle(grid, 10, 11);
-            GridHelper.AddObstacle(grid, 11, 12);
-            GridHelper.AddObstacle(grid, 12, 13);
-            GridHelper.AddObstacle(grid, 13, 14);
-            GridHelper.AddObstacle(grid, 14, 15);
-
-            
-            GridHelper.AddObstacle(grid, 9, 9);
-            GridHelper.AddObstacle(grid, 9, 8);
-            GridHelper.AddObstacle(grid, 10, 7);
-            GridHelper.AddObstacle(grid, 11, 6);
-            GridHelper.AddObstacle(grid, 12, 5);
-            GridHelper.AddObstacle(grid, 13, 4);
-            GridHelper.AddObstacle(grid, 14, 3);
+            AddObstacles(grid);
 
             canvas = new Canvas
             {
@@ -64,6 +50,25 @@ namespace DijkstrasAlgorithmWPF
 
             canvas.MouseDown += OnCanvasMouseDown;
 
+        }
+
+        private void AddObstacles(DijkstrasAlgorithmWPF.Model.Grid grid)
+        {
+            GridHelper.AddObstacle(grid, 9, 10);
+            GridHelper.AddObstacle(grid, 10, 11);
+            GridHelper.AddObstacle(grid, 11, 12);
+            GridHelper.AddObstacle(grid, 12, 13);
+            GridHelper.AddObstacle(grid, 13, 14);
+            GridHelper.AddObstacle(grid, 14, 15);
+
+
+            GridHelper.AddObstacle(grid, 9, 9);
+            GridHelper.AddObstacle(grid, 9, 8);
+            GridHelper.AddObstacle(grid, 10, 7);
+            GridHelper.AddObstacle(grid, 11, 6);
+            GridHelper.AddObstacle(grid, 12, 5);
+            GridHelper.AddObstacle(grid, 13, 4);
+            GridHelper.AddObstacle(grid, 14, 3);
         }
 
         private void UpdateNodeUI(Node node, Canvas canvas)
@@ -111,16 +116,29 @@ namespace DijkstrasAlgorithmWPF
 
         private async void OnStartButtonClick(object sender, RoutedEventArgs e)
         {
-            
-            var path = await Dijkstras.Search(grid, node => UpdateNodeUI(node, canvas));
+            List<Node> path = null;
 
-            // Update the UI for the final path
-            foreach (Node node in path)
+            if (selectedAlgorithm == AlgorithmType.Dijkstra)
             {
-                node.State = NodeState.Path;
-                UpdateNodeUI(node, canvas);
+                path = await Dijkstras.Search(grid, node => UpdateNodeUI(node, canvas));
+            }
+            else if (selectedAlgorithm == AlgorithmType.AStar)
+            {
+                // Replace "AStar.Search" with the actual A* search method from your implementation
+                path = await AStar.Search(grid, node => UpdateNodeUI(node, canvas));
+            }
+
+            if (path != null)
+            {
+                // Update the UI for the final path
+                foreach (Node node in path)
+                {
+                    node.State = NodeState.Path;
+                    UpdateNodeUI(node, canvas);
+                }
             }
         }
+
 
         private void OnResetButtonClick(object sender, RoutedEventArgs e)
         {
@@ -133,8 +151,8 @@ namespace DijkstrasAlgorithmWPF
             canvas.Children.Clear();
 
             // Reset the grid
-            grid = GridHelper.InitializeGrid(20, 20, (0, 0), (19, 19));
-
+            grid = GridHelper.InitializeGrid(20, 20, (0, 0), (10, 9));
+            AddObstacles(grid);
             // Draw the initial grid cells
             foreach (Node node in grid.Nodes)
             {
@@ -185,5 +203,26 @@ namespace DijkstrasAlgorithmWPF
                 UpdateNodeUI(clickedNode, canvas);
             }
         }
+
+        public enum AlgorithmType
+        {
+            Dijkstra,
+            AStar
+        }
+
+        private AlgorithmType selectedAlgorithm = AlgorithmType.Dijkstra;
+
+        private void AlgorithmComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (AlgorithmComboBox.SelectedIndex == 0)
+            {
+                selectedAlgorithm = AlgorithmType.Dijkstra;
+            }
+            else if (AlgorithmComboBox.SelectedIndex == 1)
+            {
+                selectedAlgorithm = AlgorithmType.AStar;
+            }
+        }
+
     }
 }

@@ -8,15 +8,30 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="5">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Grid.ColumnSpan="2">
             <Button Content="Start" Click="OnStartButtonClick" Margin="5" />
             <Button Content="Reset" Click="OnResetButtonClick" Margin="5" />
+            <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="160" SelectionChanged="AlgorithmComboBox_SelectionChanged">
+                <ComboBoxItem>Dijkstra's Algorithm</ComboBoxItem>
+                <ComboBoxItem>A* Algorithm</ComboBoxItem>
+            </ComboBox>
         </StackPanel>
 
-        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Margin="5">
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Margin="5" Background="LightGray">
+            <TextBlock
+                x:Name="InfoTextBlock"
+                TextWrapping="Wrap"
+                Margin="10"
+                FontSize="14"
+                Text="Instructions:&#x0a;- Left-click to place/remove obstacles.&#x0a;- Hold Left Shift and left-click to move the start node.&#x0a;- Hold Left Ctrl and left-click to move the end node.&#x0a;- Use the drop-down menu above to select the search algorithm (Dijkstra's or A*).">
+            </TextBlock>
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Margin="5">
             <Grid Name="MyGrid">
                 <!-- The Canvas will be added programmatically in the MainWindow.xaml.cs file -->
             </Grid>
