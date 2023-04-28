@@ -15,6 +15,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Grid.ColumnSpan="2">
             <Button Content="Start" Click="OnStartButtonClick" Margin="5" />
             <Button Content="Reset" Click="OnResetButtonClick" Margin="5" />
+            <Button Content="Clear Obstacles" Margin="5" Click="OnClearObstaclesButtonClick"/>
             <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="160" SelectionChanged="AlgorithmComboBox_SelectionChanged">
                 <ComboBoxItem>Dijkstra's Algorithm</ComboBoxItem>
                 <ComboBoxItem>A* Algorithm</ComboBoxItem>

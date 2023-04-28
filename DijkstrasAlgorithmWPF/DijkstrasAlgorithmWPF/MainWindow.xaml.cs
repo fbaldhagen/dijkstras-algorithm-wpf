@@ -22,6 +22,11 @@ namespace DijkstrasAlgorithmWPF
         private Canvas canvas;
         private readonly int cellSize = 20; // Adjust the cell size as needed
 
+        private Node latestStart;
+        private Node latestEnd;
+        private List<(int X, int Y)> customObstacles = new List<(int X, int Y)>();
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,7 +37,8 @@ namespace DijkstrasAlgorithmWPF
         {
             // Initialize the Grid and Canvas
             grid = GridHelper.InitializeGrid(20, 20, (0, 0), (10, 9)); // Adjust the grid size, start, and end positions as needed
-
+            latestEnd = grid.EndNode;
+            latestStart = grid.StartNode;
             AddObstacles(grid);
 
             canvas = new Canvas
@@ -40,7 +46,7 @@ namespace DijkstrasAlgorithmWPF
                 Width = grid.Width * cellSize,
                 Height = grid.Height * cellSize
             };
-            MyGrid.Children.Add(canvas); // Assuming you have a Grid named "MyGrid" in your MainWindow.xaml file
+            MyGrid.Children.Add(canvas); 
 
             // Draw the initial grid cells
             foreach (Node node in grid.Nodes)
@@ -77,8 +83,8 @@ namespace DijkstrasAlgorithmWPF
             {
                 Width = cellSize,
                 Height = cellSize,
-                Stroke = Brushes.Black, // Add a border to the cell
-                StrokeThickness = 1 // Adjust the border thickness as needed
+                Stroke = Brushes.Black, 
+                StrokeThickness = 1 
             };
 
             switch (node.State)
@@ -124,7 +130,7 @@ namespace DijkstrasAlgorithmWPF
             }
             else if (selectedAlgorithm == AlgorithmType.AStar)
             {
-                // Replace "AStar.Search" with the actual A* search method from your implementation
+                
                 path = await AStar.Search(grid, node => UpdateNodeUI(node, canvas));
             }
 
@@ -147,13 +153,26 @@ namespace DijkstrasAlgorithmWPF
 
         private void ResetGrid()
         {
+
             // Clear the canvas
             canvas.Children.Clear();
 
             // Reset the grid
-            grid = GridHelper.InitializeGrid(20, 20, (0, 0), (10, 9));
+            grid = GridHelper.InitializeGrid(20, 20, (latestStart.X, latestStart.Y), (latestEnd.X, latestEnd.Y));
+            
             AddObstacles(grid);
+
+            foreach (var (x, y) in customObstacles)
+            {
+                GridHelper.AddObstacle(grid, x, y);
+            }
+
             // Draw the initial grid cells
+            foreach (Node node in grid.Nodes)
+            {
+                UpdateNodeUI(node, canvas);
+            }
+
             foreach (Node node in grid.Nodes)
             {
                 UpdateNodeUI(node, canvas);
@@ -177,7 +196,7 @@ namespace DijkstrasAlgorithmWPF
                     oldStart.State = NodeState.Unvisited;
                     grid.StartNode = clickedNode;
                     grid.StartNode.Distance = 0;
-
+                    latestStart = grid.StartNode;
                     UpdateNodeUI(oldStart, canvas);
                     UpdateNodeUI(grid.StartNode, canvas);
 
@@ -189,7 +208,7 @@ namespace DijkstrasAlgorithmWPF
 
                     Node oldEnd = grid.EndNode;
                     grid.EndNode = clickedNode;
-
+                    latestEnd = grid.EndNode;
                     UpdateNodeUI(oldEnd, canvas);
                     UpdateNodeUI(clickedNode, canvas);
                 }
@@ -197,6 +216,14 @@ namespace DijkstrasAlgorithmWPF
                 {
                     // Toggle obstacle
                     clickedNode.IsObstacle = !clickedNode.IsObstacle;
+                    if (clickedNode.IsObstacle)
+                    {
+                        customObstacles.Add((clickedNode.X, clickedNode.Y));
+                    }
+                    else
+                    {
+                        customObstacles.RemoveAll(obstacle => obstacle.X == clickedNode.X && obstacle.Y == clickedNode.Y);
+                    }
                 }
 
                 // Update the UI for the clicked node
@@ -224,5 +251,16 @@ namespace DijkstrasAlgorithmWPF
             }
         }
 
+        private void OnClearObstaclesButtonClick(object sender, RoutedEventArgs e)
+        {
+            canvas.Children.Clear();
+
+            // Reset the grid
+            grid = GridHelper.InitializeGrid(20, 20, (latestStart.X, latestStart.Y), (latestEnd.X, latestEnd.Y));
+            foreach (Node node in grid.Nodes)
+            {
+                UpdateNodeUI(node, canvas);
+            }
+        }
     }
 }
