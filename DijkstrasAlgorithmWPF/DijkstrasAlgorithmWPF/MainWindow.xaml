@@ -1,12 +1,25 @@
-﻿<Window x:Class="DijkstrasAlgorithmWPF.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DijkstrasAlgorithmWPF"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        x:Class="DijkstrasAlgorithmWPF.MainWindow"
+        Title="Dijkstra's Visualization" Height="600" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="5">
+            <Button Content="Start" Click="OnStartButtonClick" Margin="5" />
+            <Button Content="Reset" Click="OnResetButtonClick" Margin="5" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Margin="5">
+            <Grid Name="MyGrid">
+                <!-- The Canvas will be added programmatically in the MainWindow.xaml.cs file -->
+            </Grid>
+        </Border>
     </Grid>
 </Window>
