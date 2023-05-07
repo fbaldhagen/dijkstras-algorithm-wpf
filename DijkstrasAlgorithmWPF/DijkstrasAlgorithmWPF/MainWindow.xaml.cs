@@ -153,31 +153,31 @@ namespace DijkstrasAlgorithmWPF
 
         private void ResetGrid()
         {
-
             // Clear the canvas
             canvas.Children.Clear();
 
-            // Reset the grid
-            grid = GridHelper.InitializeGrid(20, 20, (latestStart.X, latestStart.Y), (latestEnd.X, latestEnd.Y));
-            
-            AddObstacles(grid);
-
-            foreach (var (x, y) in customObstacles)
-            {
-                GridHelper.AddObstacle(grid, x, y);
-            }
-
-            // Draw the initial grid cells
+            // Iterate through each node in the grid
             foreach (Node node in grid.Nodes)
             {
-                UpdateNodeUI(node, canvas);
+                if (node != grid.StartNode && node != grid.EndNode && !node.IsObstacle)
+                {
+                    // Set the state of the node to Unvisited
+                    node.State = NodeState.Unvisited;
+                    // Reset distance value if it's not the start node
+                    if (node != grid.StartNode)
+                    {
+                        node.Distance = double.MaxValue;
+                    }
+                }
             }
 
+            // Draw the updated grid cells
             foreach (Node node in grid.Nodes)
             {
                 UpdateNodeUI(node, canvas);
             }
         }
+
 
         private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
