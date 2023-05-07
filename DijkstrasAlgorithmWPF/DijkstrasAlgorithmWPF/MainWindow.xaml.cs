@@ -24,8 +24,6 @@ namespace DijkstrasAlgorithmWPF
 
         private Node latestStart;
         private Node latestEnd;
-        private List<(int X, int Y)> customObstacles = new List<(int X, int Y)>();
-
 
         public MainWindow()
         {
@@ -216,14 +214,6 @@ namespace DijkstrasAlgorithmWPF
                 {
                     // Toggle obstacle
                     clickedNode.IsObstacle = !clickedNode.IsObstacle;
-                    if (clickedNode.IsObstacle)
-                    {
-                        customObstacles.Add((clickedNode.X, clickedNode.Y));
-                    }
-                    else
-                    {
-                        customObstacles.RemoveAll(obstacle => obstacle.X == clickedNode.X && obstacle.Y == clickedNode.Y);
-                    }
                 }
 
                 // Update the UI for the clicked node
