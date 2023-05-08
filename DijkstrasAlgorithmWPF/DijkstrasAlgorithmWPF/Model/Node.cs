@@ -10,19 +10,25 @@ namespace DijkstrasAlgorithmWPF.Model
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public bool IsObstacle { get; set; }
-        public Node Parent { get; set; }
         public double Distance { get; set; }
+        public Node Parent { get; set; }
         public NodeState State { get; set; }
+        public bool IsObstacle { get; set; }
+
+        public Node(int x, int y)
+        {
+            X = x;
+            Y = y;
+            Distance = double.MaxValue;
+            State = NodeState.Unvisited;
+            IsObstacle = false;
+        }
     }
 
     public enum NodeState
     {
         Unvisited,
-        Visited,
-        Path,
-        Start,
-        End,
-        Obstacle
+        Visited
     }
+
 }

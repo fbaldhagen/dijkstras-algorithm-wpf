@@ -18,91 +18,72 @@ namespace DijkstrasAlgorithmWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private DijkstrasAlgorithmWPF.Model.Grid grid;
-        private Canvas canvas;
-        private readonly int cellSize = 20; // Adjust the cell size as needed
-
-        private Node latestStart;
-        private Node latestEnd;
+        private Model.Grid _grid;
+        private const int GridSize = 20;
+        private const int CellSize = 25;
+        private Action<Node> _onNodeProcessed;
 
         public MainWindow()
         {
             InitializeComponent();
-            InitializeUI();
+            InitializeGrid();
+            _onNodeProcessed = UpdateUI;
         }
 
-        private void InitializeUI()
+        /// <summary>
+        /// Initializes the grid by creating a grid of nodes and drawing rectangles
+        /// representing each node on the MyCanvas element. The grid dimensions are determined
+        /// by the GridSize constant and each cell's dimensions are determined by the CellSize constant.
+        /// This method also sets the appropriate event handlers for handling mouse input on each cell.
+        /// After initializing the grid, the UI is updated to reflect the initial state of the grid.
+        /// </summary>
+        private void InitializeGrid()
         {
-            // Initialize the Grid and Canvas
-            grid = GridHelper.InitializeGrid(20, 20, (0, 0), (10, 9)); // Adjust the grid size, start, and end positions as needed
-            latestEnd = grid.EndNode;
-            latestStart = grid.StartNode;
-            AddObstacles(grid);
+            MyCanvas.Children.Clear();
 
-            canvas = new Canvas
-            {
-                Width = grid.Width * cellSize,
-                Height = grid.Height * cellSize
-            };
-            MyGrid.Children.Add(canvas); 
+            MyCanvas.Width = CellSize * GridSize;
+            MyCanvas.Height = CellSize * GridSize;
 
-            // Draw the initial grid cells
-            foreach (Node node in grid.Nodes)
+            _grid = GridHelper.InitializeGrid(GridSize, GridSize, (0, 0), (GridSize - 1, GridSize - 1));
+
+            for (int i = 0; i < GridSize; i++)
             {
-                UpdateNodeUI(node, canvas);
+                for (int j = 0; j < GridSize; j++)
+                {
+                    var rect = new Rectangle
+                    {
+                        Width = CellSize,
+                        Height = CellSize,
+                        Fill = Brushes.White,
+                        Stroke = Brushes.Black,
+                        StrokeThickness = 1
+                    };
+                    rect.MouseLeftButtonDown += OnCellMouseLeftButtonDown;
+                    MyCanvas.Children.Add(rect);
+                    Canvas.SetLeft(rect, i * CellSize);
+                    Canvas.SetTop(rect, j * CellSize);
+                }
             }
-
-            canvas.MouseDown += OnCanvasMouseDown;
-
+            UpdateAllUI();
         }
 
-        private void AddObstacles(DijkstrasAlgorithmWPF.Model.Grid grid)
+        /// <summary>
+        /// Updates the visual appearance of a single node on the UI canvas based on its properties.
+        /// The fill color of the rectangle representing the node is changed according to its type
+        /// (start node, end node, obstacle, visited or unvisited).
+        /// </summary>
+        /// <param name="node">The Node object to be updated on the UI.</param>
+        private void UpdateUI(Node node)
         {
-            GridHelper.AddObstacle(grid, 9, 10);
-            GridHelper.AddObstacle(grid, 10, 11);
-            GridHelper.AddObstacle(grid, 11, 12);
-            GridHelper.AddObstacle(grid, 12, 13);
-            GridHelper.AddObstacle(grid, 13, 14);
-            GridHelper.AddObstacle(grid, 14, 15);
+            int x = node.X;
+            int y = node.Y;
+            var rect = MyCanvas.Children[y * GridSize + x] as Rectangle;
 
-
-            GridHelper.AddObstacle(grid, 9, 9);
-            GridHelper.AddObstacle(grid, 9, 8);
-            GridHelper.AddObstacle(grid, 10, 7);
-            GridHelper.AddObstacle(grid, 11, 6);
-            GridHelper.AddObstacle(grid, 12, 5);
-            GridHelper.AddObstacle(grid, 13, 4);
-            GridHelper.AddObstacle(grid, 14, 3);
-        }
-
-        private void UpdateNodeUI(Node node, Canvas canvas)
-        {
-            Rectangle rect = new Rectangle
-            {
-                Width = cellSize,
-                Height = cellSize,
-                Stroke = Brushes.Black, 
-                StrokeThickness = 1 
-            };
-
-            switch (node.State)
-            {
-                case NodeState.Unvisited:
-                    rect.Fill = Brushes.White;
-                    break;
-                case NodeState.Visited:
-                    rect.Fill = Brushes.Gray;
-                    break;
-                case NodeState.Path:
-                    rect.Fill = Brushes.Orange;
-                    break;
-            }
-
-            if (node == grid.StartNode)
+            if (node == _grid.StartNode)
             {
                 rect.Fill = Brushes.Green;
             }
-            else if (node == grid.EndNode)
+            else if (node == _grid.EndNode)
             {
                 rect.Fill = Brushes.Red;
             }
@@ -110,147 +91,142 @@ namespace DijkstrasAlgorithmWPF
             {
                 rect.Fill = Brushes.Black;
             }
-
-            Canvas.SetLeft(rect, node.X * cellSize);
-            Canvas.SetTop(rect, node.Y * cellSize);
-            canvas.Children.Add(rect);
+            else if (node.State == NodeState.Visited)
+            {
+                rect.Fill = Brushes.LightBlue;
+            }
+            else
+            {
+                rect.Fill = Brushes.White;
+            }
         }
 
+        /// <summary>
+        /// Updates the UI to highlight the shortest path found by the search algorithm.
+        /// The fill color of the rectangles representing the path nodes is set to yellow,
+        /// excluding the start and end nodes.
+        /// </summary>
+        /// <param name="path">The list of Node objects representing the shortest path.</param>
+        private void UpdatePathUI(List<Node> path)
+        {
+            foreach (Node node in path)
+            {
+                if (node == _grid.StartNode || node == _grid.EndNode)
+                {
+                    continue;
+                }
 
+                int x = node.X;
+                int y = node.Y;
+                var rect = MyCanvas.Children[y * GridSize + x] as Rectangle;
+                rect.Fill = Brushes.Yellow;
+            }
+        }
 
+        /// <summary>
+        /// Updates the visual appearance of all nodes on the UI canvas based on their properties.
+        /// Calls the UpdateUI method for each node in the grid.
+        /// </summary>
+        private void UpdateAllUI()
+        {
+            for (int i = 0; i < GridSize; i++)
+            {
+                for (int j = 0; j < GridSize; j++)
+                {
+                    var node = _grid.Nodes[i, j];
+                    UpdateUI(node);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the appropriate Brush object based on the properties of the given node.
+        /// </summary>
+        /// <param name="node">The Node object for which to get the brush.</param>
+        /// <returns>The Brush object corresponding to the node's type (start node, end node, obstacle, visited or unvisited).</returns>
+        private Brush GetBrushForNode(Node node)
+        {
+            if (node == _grid.StartNode) return Brushes.Green;
+            if (node == _grid.EndNode) return Brushes.Red;
+            if (node.IsObstacle) return Brushes.Black;
+            if (node.State == NodeState.Visited) return Brushes.LightBlue;
+            return Brushes.White;
+        }
+
+        /// <summary>
+        /// Handles the Start button click event. Resets the grid, runs the selected search algorithm
+        /// (Dijkstra's or A*), and updates the UI to display the shortest path.
+        /// </summary>
+        /// <param name="sender">The sender object (Start button).</param>
+        /// <param name="e">The RoutedEventArgs object containing the event data.</param>
         private async void OnStartButtonClick(object sender, RoutedEventArgs e)
         {
-            List<Node> path = null;
+            _grid.Reset();
+            UpdateAllUI();
 
-            if (selectedAlgorithm == AlgorithmType.Dijkstra)
+            List<Node> shortestPath = null;
+            if (AlgorithmComboBox.SelectedIndex == 0) // Dijkstra's Algorithm
             {
-                path = await Dijkstras.Search(grid, node => UpdateNodeUI(node, canvas));
+                shortestPath = await Dijkstras.Search(_grid, UpdateUI);
             }
-            else if (selectedAlgorithm == AlgorithmType.AStar)
+            else if (AlgorithmComboBox.SelectedIndex == 1) // A* Algorithm
             {
-                
-                path = await AStar.Search(grid, node => UpdateNodeUI(node, canvas));
+                shortestPath = await AStar.Search(_grid, UpdateUI);
             }
 
-            if (path != null)
-            {
-                // Update the UI for the final path
-                foreach (Node node in path)
-                {
-                    node.State = NodeState.Path;
-                    UpdateNodeUI(node, canvas);
-                }
-            }
+            // Update the UI for the shortest path
+            UpdatePathUI(shortestPath);
         }
 
-
+        /// <summary>
+        /// Handles the Reset button click event. Resets the grid and updates the UI.
+        /// </summary>
+        /// <param name="sender">The sender object (Reset button).</param>
+        /// <param name="e">The RoutedEventArgs object containing the event data.</param>
         private void OnResetButtonClick(object sender, RoutedEventArgs e)
         {
-            ResetGrid();
+            _grid.Reset();
+            UpdateAllUI();
         }
 
-        private void ResetGrid()
-        {
-            // Clear the canvas
-            canvas.Children.Clear();
-
-            // Iterate through each node in the grid
-            foreach (Node node in grid.Nodes)
-            {
-                if (node != grid.StartNode && node != grid.EndNode && !node.IsObstacle)
-                {
-                    // Set the state of the node to Unvisited
-                    node.State = NodeState.Unvisited;
-                    // Reset distance value if it's not the start node
-                    if (node != grid.StartNode)
-                    {
-                        node.Distance = double.MaxValue;
-                    }
-                }
-            }
-
-            // Draw the updated grid cells
-            foreach (Node node in grid.Nodes)
-            {
-                UpdateNodeUI(node, canvas);
-            }
-        }
-
-
-        private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                int x = (int)(e.GetPosition(canvas).X / cellSize);
-                int y = (int)(e.GetPosition(canvas).Y / cellSize);
-
-                Node clickedNode = grid.Nodes[x, y];
-
-                if (Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    // Update the UI for the previous start node
-                    Node oldStart = grid.StartNode;
-                    oldStart.Distance = double.MaxValue;
-                    oldStart.State = NodeState.Unvisited;
-                    grid.StartNode = clickedNode;
-                    grid.StartNode.Distance = 0;
-                    latestStart = grid.StartNode;
-                    UpdateNodeUI(oldStart, canvas);
-                    UpdateNodeUI(grid.StartNode, canvas);
-
-                }
-                else if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                {
-                    // Update the UI for the previous end node
-                    UpdateNodeUI(grid.EndNode, canvas);
-
-                    Node oldEnd = grid.EndNode;
-                    grid.EndNode = clickedNode;
-                    latestEnd = grid.EndNode;
-                    UpdateNodeUI(oldEnd, canvas);
-                    UpdateNodeUI(clickedNode, canvas);
-                }
-                else
-                {
-                    // Toggle obstacle
-                    clickedNode.IsObstacle = !clickedNode.IsObstacle;
-                }
-
-                // Update the UI for the clicked node
-                UpdateNodeUI(clickedNode, canvas);
-            }
-        }
-
-        public enum AlgorithmType
-        {
-            Dijkstra,
-            AStar
-        }
-
-        private AlgorithmType selectedAlgorithm = AlgorithmType.Dijkstra;
-
-        private void AlgorithmComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (AlgorithmComboBox.SelectedIndex == 0)
-            {
-                selectedAlgorithm = AlgorithmType.Dijkstra;
-            }
-            else if (AlgorithmComboBox.SelectedIndex == 1)
-            {
-                selectedAlgorithm = AlgorithmType.AStar;
-            }
-        }
-
+        /// <summary>
+        /// Handles the Clear Obstacles button click event. Resets the grid without keeping
+        /// the obstacles and updates the UI.
+        /// </summary>
+        /// <param name="sender">The sender object (Clear Obstacles button).</param>
+        /// <param name="e">The RoutedEventArgs object containing the event data.</param>
         private void OnClearObstaclesButtonClick(object sender, RoutedEventArgs e)
         {
-            canvas.Children.Clear();
+            _grid.Reset(keepObstacles: false);
+            UpdateAllUI();
+        }
 
-            // Reset the grid
-            grid = GridHelper.InitializeGrid(20, 20, (latestStart.X, latestStart.Y), (latestEnd.X, latestEnd.Y));
-            foreach (Node node in grid.Nodes)
+        /// <summary>
+        /// Handles the MouseLeftButtonDown event for a cell. Updates the start node, end node, or obstacle
+        /// state based on the current keyboard state (Shift or Ctrl key pressed) and updates the UI.
+        /// </summary>
+        /// <param name="sender">The sender object (cell Rectangle).</param>
+        /// <param name="e">The MouseButtonEventArgs object containing the event data.</param>
+        private void OnCellMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var rect = sender as Rectangle;
+            int x = (int)(Canvas.GetLeft(rect) / CellSize);
+            int y = (int)(Canvas.GetTop(rect) / CellSize);
+
+            if (Keyboard.IsKeyDown(Key.LeftShift))
             {
-                UpdateNodeUI(node, canvas);
+                _grid.StartNode = _grid.Nodes[y, x]; 
             }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                _grid.EndNode = _grid.Nodes[y, x]; 
+            }
+            else
+            {
+                Node node = _grid.Nodes[y, x]; 
+                node.IsObstacle = !node.IsObstacle;
+            }
+            UpdateAllUI();
         }
     }
 }
