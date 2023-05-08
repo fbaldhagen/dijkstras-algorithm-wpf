@@ -27,9 +27,13 @@ This is a simple WPF application to visualize Dijkstra's and A* pathfinding algo
 - Click the `Reset` button to clear the search results and start over.
 - Click the `Clear Obstacles` button to remove all obstacles from the grid.
 
-## Note on Unweighted Graph
+## Note on Unweighted Graph and Algorithm Behavior
 
-It is important to mention that the current implementation of the grid and graph for this visualization is unweighted. This means that all edges connecting nodes have the same cost. In such cases, a simpler Breadth-First Search (BFS) algorithm could be used to achieve the same results with lower complexity. Dijkstra's and A* algorithms are particularly useful when dealing with weighted graphs, where the cost of traversing edges varies.
+It is important to mention that the current implementation of the grid and graph for this visualization is unweighted, meaning that all edges connecting nodes have the same cost. In such cases, a simpler Breadth-First Search (BFS) algorithm could be used to achieve the same results with lower complexity. Dijkstra's and A* algorithms are particularly useful when dealing with weighted graphs, where the cost of traversing edges varies.
+
+In an unweighted graph, Dijkstra's algorithm essentially behaves like a Breadth-First Search (BFS), exploring nodes in layers, moving from the source node outwards. However, Dijkstra's algorithm is generally less efficient than BFS in unweighted graphs due to the added overhead of maintaining a priority queue of nodes to visit based on their minimum distance from the source, whereas BFS simply uses a regular queue, which is less computationally expensive. So, although Dijkstra's algorithm will find the shortest path in an unweighted graph, it will typically do so less efficiently than BFS.
+
+The A* algorithm's behavior in an unweighted graph depends on the heuristic function used. In this project, the heuristic is based on the Manhattan distance between nodes. As a result, A* will still be guided towards the goal node more directly than BFS, but the difference in performance may be less pronounced compared to a weighted graph scenario.
 
 ## Contributing
 
