@@ -7,24 +7,19 @@ using DijkstrasAlgorithmWPF.Model;
 
 namespace DijkstrasAlgorithmWPF.Helper
 {
-    public class GridHelper
+    public static class GridHelper
     {
+        /// <summary>
+        /// Initializes a Grid object with the given dimensions, start node, and end node.
+        /// </summary>
+        /// <param name="width">The width of the grid.</param>
+        /// <param name="height">The height of the grid.</param>
+        /// <param name="start">(x, y) coordinates of the start node.</param>
+        /// <param name="end">(x, y) coordinates of the end node.</param>
+        /// <returns>A Grid object with the specified parameters.</returns>
         public static Grid InitializeGrid(int width, int height, (int x, int y) start, (int x, int y) end)
         {
-            Grid grid = new Grid
-            {
-                Width = width,
-                Height = height,
-                Nodes = new Node[width, height]
-            };
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    grid.Nodes[x, y] = new Node { X = x, Y = y, Distance = double.MaxValue };
-                }
-            }
+            Grid grid = new Grid(width, height);
 
             grid.StartNode = grid.Nodes[start.x, start.y];
             grid.EndNode = grid.Nodes[end.x, end.y];
@@ -33,11 +28,23 @@ namespace DijkstrasAlgorithmWPF.Helper
             return grid;
         }
 
+        /// <summary>
+        /// Adds an obstacle to the specified grid at the given (x, y) coordinates.
+        /// </summary>
+        /// <param name="grid">The Grid object where the obstacle should be added.</param>
+        /// <param name="x">The x-coordinate of the obstacle.</param>
+        /// <param name="y">The y-coordinate of the obstacle.</param>
         public static void AddObstacle(Grid grid, int x, int y)
         {
             grid.Nodes[x, y].IsObstacle = true;
         }
 
+        /// <summary>
+        /// Retrieves the unvisited and non-obstacle neighbors of the given node within the grid.
+        /// </summary>
+        /// <param name="grid">The Grid object containing the node.</param>
+        /// <param name="node">The Node object for which neighbors should be retrieved.</param>
+        /// <returns>A List of neighboring Node objects that are unvisited and not obstacles.</returns>
         public static List<Node> GetNeighbors(Grid grid, Node node)
         {
             List<Node> neighbors = new List<Node>();
@@ -54,7 +61,7 @@ namespace DijkstrasAlgorithmWPF.Helper
                 {
                     Node neighbor = grid.Nodes[newX, newY];
 
-                    if (!neighbor.IsObstacle)
+                    if (!neighbor.IsObstacle && neighbor.State == NodeState.Unvisited)
                     {
                         neighbors.Add(neighbor);
                     }
@@ -64,6 +71,11 @@ namespace DijkstrasAlgorithmWPF.Helper
             return neighbors;
         }
 
+        /// <summary>
+        /// Builds a path from the end node to the start node by following parent pointers.
+        /// </summary>
+        /// <param name="endNode">The end Node object from which the path should be built.</param>
+        /// <returns>A List of Node objects representing the path from the end node to the start node.</returns>
         public static List<Node> BuildPath(Node endNode)
         {
             List<Node> path = new List<Node>();
@@ -80,4 +92,5 @@ namespace DijkstrasAlgorithmWPF.Helper
             return path;
         }
     }
+
 }

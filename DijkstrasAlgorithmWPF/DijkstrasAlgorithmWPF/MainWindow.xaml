@@ -1,7 +1,8 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="DijkstrasAlgorithmWPF.MainWindow"
-        Title="Dijkstra's Visualization" Height="600" Width="800">
+        Title="Dijkstra's Visualization" Height="599" Width="768"
+        ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -13,10 +14,10 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Grid.ColumnSpan="2">
-            <Button Content="Start" Click="OnStartButtonClick" Margin="5" />
-            <Button Content="Reset" Click="OnResetButtonClick" Margin="5" />
-            <Button Content="Clear Obstacles" Margin="5" Click="OnClearObstaclesButtonClick"/>
-            <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="160" SelectionChanged="AlgorithmComboBox_SelectionChanged">
+            <Button Content="Start" Click="OnStartButtonClick" Margin="5" Padding="5"/>
+            <Button Content="Reset" Click="OnResetButtonClick" Margin="5" Padding="5"/>
+            <Button Content="Clear Obstacles" Margin="5" Click="OnClearObstaclesButtonClick" Padding="5"/>
+            <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="160" SelectedIndex="0" Padding="5">
                 <ComboBoxItem>Dijkstra's Algorithm</ComboBoxItem>
                 <ComboBoxItem>A* Algorithm</ComboBoxItem>
             </ComboBox>
@@ -33,9 +34,9 @@
         </Border>
 
         <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Margin="5">
-            <Grid Name="MyGrid">
+            <Canvas Name="MyCanvas" Width="500">
                 <!-- The Canvas will be added programmatically in the MainWindow.xaml.cs file -->
-            </Grid>
+            </Canvas>
         </Border>
     </Grid>
 </Window>
