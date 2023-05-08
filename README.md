@@ -27,6 +27,10 @@ This is a simple WPF application to visualize Dijkstra's and A* pathfinding algo
 - Click the `Reset` button to clear the search results and start over.
 - Click the `Clear Obstacles` button to remove all obstacles from the grid.
 
+## Note on Unweighted Graph
+
+It is important to mention that the current implementation of the grid and graph for this visualization is unweighted. This means that all edges connecting nodes have the same cost. In such cases, a simpler Breadth-First Search (BFS) algorithm could be used to achieve the same results with lower complexity. Dijkstra's and A* algorithms are particularly useful when dealing with weighted graphs, where the cost of traversing edges varies.
+
 ## Contributing
 
 If you would like to contribute to this project, please feel free to fork the repository, make changes, and submit a pull request. All contributions are welcome!
